@@ -27,7 +27,8 @@ def filter_tests(tests, implemented_features):
 def run_feature_tests(tests, path_to_pandora):
     for test in tests:
         option = f" {test['option']}" if 'option' in test else ""
-        command = f"java -Duser.country=US -Duser.language=en -jar {path_to_pandora} -o {test['feature']}{option} {test['file']}"
+        command = f"java -javaagent:{jacoco_agent}=destfile=target/jacoco.exec,append=true -Duser.country=US -Duser.language=en -jar {path_to_pandora} -o {test['feature']}{option} {test['file']}"
+        print ("Running command:", command)
         output = run_command(command)
         test['actual_result'] = output
         if output == test['result']:
@@ -125,6 +126,9 @@ def main():
     command = f"java -javaagent:{jacoco_agent}=destfile=target/jacoco.exec -jar {path_to_pandora} --version"
     output = run_command(command)
     print(output)
+    # For coverage, we need to run at least one command with the jacoco agent we check the help path
+    command = f"java -javaagent:{jacoco_agent}=destfile=target/jacoco.exec,append=true -jar {path_to_pandora} --help" 
+    output = run_command(command)
 
     # Read test suite and manifest
     with open(test_suite_file, 'r') as f:
