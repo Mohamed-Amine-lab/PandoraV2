@@ -4,11 +4,15 @@ import sys
 import getopt
 import sys
 
+jacoco_agent = "target/jacocoagent.jar"
 
 def run_command(command):
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, error = process.communicate()
+    # print the error if there is one
+    if error:
+        print("Error:", error.decode())
     return output.decode().strip()
 
 
@@ -21,8 +25,9 @@ def filter_tests(tests, implemented_features):
 
 
 def run_feature_tests(tests, path_to_pandora):
-    for test in tests:                
-        command = f"java -Duser.country=US -Duser.language=en -jar {path_to_pandora} -o {test['feature']} {test['file']}"
+    for test in tests:
+        option = f" {test['option']}" if 'option' in test else ""
+        command = f"java -Duser.country=US -Duser.language=en -jar {path_to_pandora} -o {test['feature']}{option} {test['file']}"
         output = run_command(command)
         test['actual_result'] = output
         if output == test['result']:
@@ -34,12 +39,14 @@ def run_feature_tests(tests, path_to_pandora):
 def run_full_tests(tests, path_to_pandora):
     grouped_tests = {}
     for test in tests:
-        if test['file'] not in grouped_tests:
-            grouped_tests[test['file']] = []
-        grouped_tests[test['file']].append(test)
+        key = (test['file'], test.get('option', ''))
+        if key not in grouped_tests:
+            grouped_tests[key] = []
+        grouped_tests[key].append(test)
 
-    for file, tests in grouped_tests.items():
-        command = f"java -Duser.country=US -Duser.language=en -jar {path_to_pandora} {file}"
+    for (file, option), tests in grouped_tests.items():
+        option_str = f" {option}" if option else ""
+        command = f"java -javaagent:{jacoco_agent}=destfile=target/jacoco.exec,append=true Duser.country=US -Duser.language=en -jar {path_to_pandora}{option_str} {file}"
         output = run_command(command)
         output_lines = output.split('\n')
         for test in tests:
@@ -93,10 +100,10 @@ def main():
     path_to_pandora = ''
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:m:")
+        opts, args = getopt.getopt(sys.argv[1:], "t:m:j:")
     except getopt.GetoptError:
         print(
-            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> <pathToPandora>")
+            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> -j <path_to_jacoco_agent> <pathToPandora>")
         sys.exit(1)
 
     for opt, arg in opts:
@@ -104,15 +111,18 @@ def main():
             test_suite_file = arg
         elif opt == '-m':
             manifest_file = arg
+        elif opt == '-j':
+            global jacoco_agent
+            jacoco_agent = arg
 
     if len(args) != 1:
         print(
-            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> <pathToPandora>")
+            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> -j <path_to_jacoco_agent>  <pathToPandora>")
         sys.exit(1)
 
     path_to_pandora = args[0]
 
-    command = f"java -jar {path_to_pandora} --version"
+    command = f"java -javaagent:{jacoco_agent}=destfile=target/jacoco.exec -jar {path_to_pandora} --version"
     output = run_command(command)
     print(output)
 
