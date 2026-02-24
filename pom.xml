@@ -8,8 +8,8 @@
 	<description>Pandora is a flight record analyser.</description>
 
 	<properties>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.release>17</maven.compiler.release>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
@@ -21,6 +21,8 @@
 	</dependencies>
 
 	<build>
+	   <finalName>pandora</finalName>
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -56,6 +58,39 @@
 							</resources>
 						</configuration>
 					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>run-autograder</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>python3</executable>
+							<arguments>
+								<argument>./test/autograder.py</argument>
+								<argument>-f</argument>
+								<argument>md</argument>
+								<argument>-o</argument>
+								<argument>${project.build.directory}/autograder_output.md</argument>
+								<argument>-j</argument>
+								<argument>${project.build.directory}/jacocoagent.jar</argument>
+								<argument>-t</argument>
+								<argument>./test/testSuite.json</argument>
+								<argument>-m</argument>
+								<argument>./manifest.json</argument>
+								<argument>./target/pandora.jar</argument>
+
+							</arguments>
+						</configuration>
+					</execution>
+					
 				</executions>
 			</plugin>
 			<plugin>
@@ -114,38 +149,35 @@
 							<goal>report</goal>
 						</goals>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>run-autograder</id>
+					 <execution>
+						<id>check</id>
 						<phase>verify</phase>
 						<goals>
-							<goal>exec</goal>
+							<goal>check</goal>
 						</goals>
 						<configuration>
-							<executable>python3</executable>
-							<arguments>
-								<argument>./test/autograder.py</argument>
-								<argument>-j</argument>
-								<argument>${project.build.directory}/jacocoagent.jar</argument>
-								<argument>-t</argument>
-								<argument>./test/testSuite.json</argument>
-								<argument>-m</argument>
-								<argument>./manifest.json</argument>
-								<argument>./target/pandora.jar</argument>
-							</arguments>
+							<haltOnFailure>false</haltOnFailure>  
+							<rules>
+								<rule>
+									<element>BUNDLE</element> <!-- whole project -->
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.70</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				 <version>3.4.1</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -157,7 +189,6 @@
 							<Class-Path>.</Class-Path>
 						</manifestEntries>
 					</archive>
-					<finalName>pandora</finalName>
 				</configuration>
 			</plugin>
 		</plugins>
