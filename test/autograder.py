@@ -1,40 +1,90 @@
 import json
+import math
 import subprocess
 import sys
 import getopt
 import sys
+import time
+import os
 
 jacoco_agent = "target/jacocoagent.jar"
+def score0(s):
+    factor = 50
+    return math.floor(pow(factor * factor, 1 - abs(s)) / factor) / factor
+
+
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
+    if len(s2) == 0:
+        return 1.0
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+        normalized = previous_row[-1] / len(s1)
+    return normalized
+
+
+def compare_output(output, expected_output):
+    # regexp the output /\s*(?:[^:]*:)?\s*(.*)/
+    if isinstance(expected_output, int) or isinstance(expected_output, float):
+        try:
+            actual_output = float(output)
+            return score0(abs(actual_output - expected_output))
+        except ValueError:
+            return 0
+    elif isinstance(expected_output, str):
+        return 1 - levenshtein(output, expected_output)
+    else:
+        return 0
+
 
 def run_command(command):
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    output, error = process.communicate()
-    # print the error if there is one
-    if error:
-        print("Error:", error.decode())
-    return output.decode().strip()
+    try:
+        output, error = process.communicate(input="", timeout=3)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        return "TIMEOUT"
+     # Normalisation des retours à la ligne (Windows, macOS, Linux)
+    output = output.decode(errors="replace").replace(
+        "\r\n", "\n").replace("\r", "\n")
+
+    # Normalisation des tabulations (`\t`)
+    output = output.replace("\t", "    ")  # Convertit tabulation en 4 espaces
+
+    # Reformate pour s'adapter au système d'exploitation courant
+    return output.replace("\n", os.linesep).strip()
 
 
 def filter_tests(tests, implemented_features):
     filtered_tests = []
     for test in tests:
         if test['feature'] in implemented_features:
+            test['actual_result'] = ''
             filtered_tests.append(test)
     return filtered_tests
 
 
 def run_feature_tests(tests, path_to_pandora):
+    
     for test in tests:
         option = f" {test['option']}" if 'option' in test else ""
         command = f"java -javaagent:{jacoco_agent}=destfile=target/jacoco.exec,append=true -Duser.country=US -Duser.language=en -jar {path_to_pandora} -o {test['feature']}{option} {test['file']}"
-        print ("Running command:", command)
         output = run_command(command)
-        test['actual_result'] = output
-        if output == test['result']:
-            test['score'] = 1
-        else:
+        if output == "TIMEOUT":
+            test['actual_result'] = 'TIMEOUT'
             test['score'] = 0
+            continue
+        test['actual_result'] = output
+        test['score'] = compare_output(output, test['result'])
 
 
 def run_full_tests(tests, path_to_pandora):
@@ -50,17 +100,27 @@ def run_full_tests(tests, path_to_pandora):
         command = f"java -javaagent:{jacoco_agent}=destfile=target/jacoco.exec,append=true Duser.country=US -Duser.language=en -jar {path_to_pandora}{option_str} {file}"
         output = run_command(command)
         output_lines = output.split('\n')
+
         for test in tests:
             feature = test['feature']
             expected_result = test['result']
+            test['actual_result'] = 'key ' + test['feature'] + ': not found'
+            test['score'] = 0
+            if output == "TIMEOUT":
+                test['actual_result'] = 'TIMEOUT'
+                test['score'] = 0
+                continue
+            found = False
             for line in output_lines:
-                if line.startswith(feature):
-                    actual_result = line.split(':')[1].strip()
+                key = line.partition(':')[0].strip()
+                if key == feature:
+                    # Extract the actual result from the line
+                    found = True
+                    actual_result = line.partition(':')[2].strip()
                     test['actual_result'] = actual_result
-                    if actual_result == expected_result:
-                        test['score'] = 1
-                    else:
-                        test['score'] = 0
+                    test['score'] = compare_output(
+                        actual_result, expected_result)
+                    break
 
 
 def group_tests_by_milestone(tests):
@@ -82,16 +142,21 @@ def generate_markdown_table(tests):
     markdown = "| id | mode |feature | file | expected result | actual result | score |\n"
     markdown += "|----|------|---------|------|----------------|---------------|-------|\n"
     for test in tests:
-        markdown += f"| {test['id']} | {test['mode']} | {test['feature']} | {test['file']} | {test['result']} | {test['actual_result']} | {test.get('score', '')} |\n"
+        markdown += f"| {test['id']} | {test['mode']} | {test['feature']} | {test['file']} | {
+            test['result']} | {test['actual_result']} | {test.get('score', '')} |\n"
     return markdown
 
 
 def sum_scores(tests):
     total_score = 0
+    count = 0
     for test in tests:
         if 'score' in test:
             total_score += test['score']
-    return total_score
+            count += 1
+    if count == 0:
+        return 0
+    return total_score / count
 
 
 def main():
@@ -99,12 +164,14 @@ def main():
     test_suite_file = ''
     manifest_file = ''
     path_to_pandora = ''
+    output_format = 'md'
+    output_path = ''
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:m:j:")
+        opts, args = getopt.getopt(sys.argv[1:], "t:m:f:o:j:")
     except getopt.GetoptError:
         print(
-            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> -j <path_to_jacoco_agent> <pathToPandora>")
+            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> -f <json|md> -o <output_path> -j <jacoco_agent_path> <pathToPandora>")
         sys.exit(1)
 
     for opt, arg in opts:
@@ -112,13 +179,17 @@ def main():
             test_suite_file = arg
         elif opt == '-m':
             manifest_file = arg
+        elif opt == '-f':
+            output_format = arg
+        elif opt == '-o':
+            output_path = arg
         elif opt == '-j':
             global jacoco_agent
             jacoco_agent = arg
 
     if len(args) != 1:
         print(
-            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> -j <path_to_jacoco_agent>  <pathToPandora>")
+            "Usage: python autograder.py -t <path_test_suit> -m <path_manifest> -f <json|md> -o <output_path> -j <jacoco_agent_path> <pathToPandora>")
         sys.exit(1)
 
     path_to_pandora = args[0]
@@ -143,6 +214,7 @@ def main():
     # Filter tests by implemented features
     filtered_tests = filter_tests(test_suite, implemented_features)
 
+    startTime = time.time()
     # Run feature tests
     feature_tests = [
         test for test in filtered_tests if test['mode'] == 'feature']
@@ -151,6 +223,7 @@ def main():
     # Run full tests
     full_tests = [test for test in filtered_tests if test['mode'] == 'full']
     run_full_tests(full_tests, path_to_pandora)
+    stopTime = time.time()
 
     # Group tests by milestone and sort by milestone
     sorted_tests = sort_tests_by_milestone(filtered_tests)
@@ -167,14 +240,48 @@ def main():
         tests) for milestone, tests in grouped_tests.items()}
     total_score = sum_scores(filtered_tests)
 
-    # Print markdown tables and scores
-    for markdown_table in markdown_tables:
-        print(markdown_table)
-        print()
-    print("Milestone Scores:")
-    print(milestone_scores)
-    print("Total Score:", total_score)
+    features_score = {feature: 0 for feature in implemented_features}
+    features_count = {feature: 0 for feature in implemented_features}
+    for test in filtered_tests:
+        if 'score' in test:
+            features_score[test['feature']] += test['score']
+            features_count[test['feature']] += 1
 
+    for feature in implemented_features:
+        if features_count[feature] > 0:
+            features_score[feature] /= features_count[feature]
+
+    # Print or save output based on format and output path
+    if output_format == 'json':
+        output_data = {
+            'milestone_scores': milestone_scores,
+            'total_score': total_score,
+            'features': implemented_features,
+            'features_score': features_score,
+            'tests': grouped_tests,
+            'time': stopTime - startTime
+        }
+        if output_path:
+            with open(output_path, 'w') as f:
+                json.dump(output_data, f)
+        else:
+            print(json.dumps(output_data, indent=4))
+    elif output_format == 'md':
+        output_text = ''
+        for markdown_table in markdown_tables:
+            output_text += markdown_table + '\n\n'
+        output_text += "Milestone Scores:\n"
+        output_text += str(milestone_scores) + '\n'
+        output_text += "Total Score: " + str(total_score)
+        if output_path:
+            with open(output_path, 'w') as f:
+                f.write(output_text)
+        else:
+            print(output_text)
+    else:
+        print("Invalid output format. Please choose 'json' or 'md'.")
+    # print the total score
+    print("Total Score: " + str(total_score))
 
 if __name__ == '__main__':
     main()
