@@ -257,4 +257,215 @@ public class Calculator {
         }
         return formatTimestamp(timestamps[0]);
     }
+
+    /**
+     * Calcule le temps nécessaire pour atteindre 80% de l'altitude maximale du vol.
+     *
+     * <p>Format de sortie : "Xmin / Ym" (X minutes, Y mètres)</p>
+     *
+     * @param flight les données de vol
+     * @return chaîne formatée "Xmin / Ym"
+     */
+    public static String reachAlt(Flightdata flight) {
+        double[] altitudes = flight.getColumnValues("altitude");
+        double[] timestamps = flight.getTimestamps();
+
+        if (altitudes.length == 0) {
+            return "0min / 0m";
+        }
+
+        double maxAlt = max(altitudes);
+        double target = maxAlt * 0.80;
+
+        for (int i = 0; i < altitudes.length; i++) {
+            if (altitudes[i] >= target) {
+                double elapsedSeconds = timestamps[i] - timestamps[0];
+                long minutes = Math.round(elapsedSeconds / 60.0);
+                return minutes + "min / " + Math.round(altitudes[i]) + "m";
+            }
+        }
+
+        // Si jamais atteint (ne devrait pas arriver)
+        return Math.round((timestamps[timestamps.length - 1] - timestamps[0]) / 60.0)
+                + "min / " + Math.round(maxAlt) + "m";
+    }
+
+    /**
+     * Calcule le temps nécessaire pour parcourir 80% de la distance totale du vol.
+     *
+     * <p>Format de sortie : "Xmin / Y.YYkm"</p>
+     *
+     * @param flight les données de vol
+     * @return chaîne formatée "Xmin / Y.YYkm"
+     */
+    public static String reachDist(Flightdata flight) {
+        double[] lats = flight.getColumnValues("latitude");
+        double[] lons = flight.getColumnValues("longitude");
+        double[] timestamps = flight.getTimestamps();
+
+        if (lats.length < 2) {
+            return "0min / 0.00km";
+        }
+
+        double totalDist = totalFlightDistance(flight);
+        double target = totalDist * 0.80;
+
+        double cumDist = 0.0;
+        for (int i = 1; i < lats.length; i++) {
+            cumDist += haversineDistance(lats[i - 1], lons[i - 1], lats[i], lons[i]);
+            if (cumDist >= target) {
+                double elapsedSeconds = timestamps[i] - timestamps[0];
+                long minutes = Math.round(elapsedSeconds / 60.0);
+                return minutes + "min / " + String.format("%.2f", cumDist / 1000.0) + "km";
+            }
+        }
+
+        long totalMinutes = Math.round(
+                (timestamps[timestamps.length - 1] - timestamps[0]) / 60.0);
+        return totalMinutes + "min / " + String.format("%.2f", totalDist / 1000.0) + "km";
+    }
+
+    /**
+     * Calcule l'altitude et la vitesse du vent maximale sur une fenêtre glissante de 5 minutes.
+     *
+     * <p>Format de sortie : "Xm : Y.YYm/s"</p>
+     *
+     * @param flight les données de vol
+     * @return chaîne formatée "Xm : Y.YYm/s"
+     */
+    public static String fastWindAlt(Flightdata flight) {
+        double[] altitudes = flight.getColumnValues("altitude");
+        double[] airSpeeds = flight.getColumnValues("air_speed");
+        double[] timestamps = flight.getTimestamps();
+        double[] groundSpeeds = computeGpsSpeed(flight);
+
+        if (altitudes.length == 0) {
+            return "0m : 0.00m/s";
+        }
+
+        double bestWindSpeed = Double.NEGATIVE_INFINITY;
+        double bestAltitude = 0.0;
+
+        // Fenêtre glissante de 5 minutes
+        for (int i = 0; i < timestamps.length; i++) {
+            double windowEnd = timestamps[i] + Constants.ROLLING_WINDOW_SECONDS;
+            double sumWind = 0.0;
+            int count = 0;
+
+            for (int j = i; j < timestamps.length && timestamps[j] <= windowEnd; j++) {
+                sumWind += Math.abs(airSpeeds[j] - groundSpeeds[j]);
+                count++;
+            }
+
+            if (count > 0) {
+                double avgWind = sumWind / count;
+                if (avgWind > bestWindSpeed) {
+                    bestWindSpeed = avgWind;
+                    bestAltitude = altitudes[i];
+                }
+            }
+        }
+
+        return Math.round(bestAltitude) + "m : "
+                + String.format(Constants.DECIMAL_FORMAT, bestWindSpeed) + "m/s";
+    }
+
+    /**
+     * Calcule l'altitude et la vitesse maximale du jet sur une fenêtre glissante de 5 minutes.
+     *
+     * <p>Format de sortie : "Xm : Y.YYm/s"</p>
+     *
+     * @param flight les données de vol
+     * @return chaîne formatée "Xm : Y.YYm/s"
+     */
+    public static String fastJetAlt(Flightdata flight) {
+        double[] altitudes = flight.getColumnValues("altitude");
+        double[] airSpeeds = flight.getColumnValues("air_speed");
+        double[] timestamps = flight.getTimestamps();
+
+        if (altitudes.length == 0) {
+            return "0m : 0.00m/s";
+        }
+
+        double bestSpeed = Double.NEGATIVE_INFINITY;
+        double bestAltitude = 0.0;
+
+        // Fenêtre glissante de 5 minutes
+        for (int i = 0; i < timestamps.length; i++) {
+            double windowEnd = timestamps[i] + Constants.ROLLING_WINDOW_SECONDS;
+            double sumSpeed = 0.0;
+            int count = 0;
+
+            for (int j = i; j < timestamps.length && timestamps[j] <= windowEnd; j++) {
+                sumSpeed += airSpeeds[j];
+                count++;
+            }
+
+            if (count > 0) {
+                double avgSpeed = sumSpeed / count;
+                if (avgSpeed > bestSpeed) {
+                    bestSpeed = avgSpeed;
+                    bestAltitude = altitudes[i];
+                }
+            }
+        }
+
+        return Math.round(bestAltitude) + "m : "
+                + String.format(Constants.DECIMAL_FORMAT, bestSpeed) + "m/s";
+    }
+
+    /**
+     * Calcule le bruit moyen du capteur de température par rapport à la référence de 25°C.
+     *
+     * <p>Le bruit est la valeur absolue de l'écart entre chaque mesure et 25°C.</p>
+     *
+     * @param flight les données de vol
+     * @return bruit moyen du capteur formaté avec 2 décimales
+     */
+    public static String noiseTemp(Flightdata flight) {
+        double[] temps = flight.getColumnValues("temperature_in");
+
+        if (temps.length == 0) {
+            return String.format(Constants.DECIMAL_FORMAT, 0.0);
+        }
+
+        double sumNoise = 0.0;
+        for (double t : temps) {
+            sumNoise += Math.abs(t - Constants.REFERENCE_TEMP_CELSIUS);
+        }
+
+        return String.format(Constants.DECIMAL_FORMAT, sumNoise / temps.length);
+    }
+
+    /**
+     * Détecte si le pilote a subi une crise de stress pendant le vol.
+     *
+     * <p>Une crise de stress est détectée si la fréquence cardiaque dépasse
+     * la moyenne + 2 écarts-types à un moment quelconque du vol.</p>
+     *
+     * @param flight les données de vol
+     * @return "y" si une crise est détectée, "n" sinon
+     */
+    public static String stressedPilot(Flightdata flight) {
+        double[] heartRates = flight.getColumnValues("heart_rate");
+
+        if (heartRates.length == 0) {
+            return "n";
+        }
+
+        double avg = average(heartRates);
+        double sumSq = 0.0;
+        for (double hr : heartRates) {
+            sumSq += (hr - avg) * (hr - avg);
+        }
+        double stdDev = Math.sqrt(sumSq / heartRates.length);
+        double threshold = avg + 2 * stdDev;
+
+        for (double hr : heartRates) {
+            if (hr > threshold) {
+                return "y";
+            }
+        }
+        return "n";
+    }
 }
