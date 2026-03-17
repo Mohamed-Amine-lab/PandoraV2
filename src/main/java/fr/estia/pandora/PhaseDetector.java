@@ -94,8 +94,8 @@ public class PhaseDetector {
          * @return chaîne formatée
          */
         public String format() {
-            return "début=" + Calculator.formatTimestamp(startTimestamp)
-                    + " / fin=" + Calculator.formatTimestamp(endTimestamp);
+            return "start=" + Calculator.formatTimestamp(startTimestamp)
+                    + " / end=" + Calculator.formatTimestamp(endTimestamp);
         }
     }
 

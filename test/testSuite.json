@@ -125,7 +125,7 @@
     "mode": "feature",
     "feature": "takeOff",
     "file": "test/resources/common/0_201_MiG-23MLD.frd",
-    "result": "début=04:00:31 / fin=04:03:57"
+    "result": "start=04:00:31 / end=04:03:57"
   },
   {
     "id": 17,
