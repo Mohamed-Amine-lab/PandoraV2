@@ -41,6 +41,54 @@
   },
   {
     "id": 6,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "avgAlt",
+    "file": "test/resources/milestones/1/avgAlt/avgAlt_1.frd",
+    "result": 475.00
+  },
+  {
+    "id": 7,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "maxAlt",
+    "file": "test/resources/milestones/1/avgAlt/avgAlt_1.frd",
+    "result": 490.00
+  },
+  {
+    "id": 8,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "avgAirSpeed",
+    "file": "test/resources/milestones/1/avgAlt/avgAlt_1.frd",
+    "result": 75.12
+  },
+  {
+    "id": 9,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "flightDuration",
+    "file": "test/resources/milestones/1/avgAlt/avgAlt_1.frd",
+    "result": "00:00:03"
+  },
+  {
+    "id": 10,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "flightDistance",
+    "file": "test/resources/milestones/1/avgAlt/avgAlt_1.frd",
+    "result": 99.92
+  },
+  {
+    "id": 11,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "avgTemp",
+    "file": "test/resources/milestones/1/avgAlt/avgAlt_1.frd",
+    "result": 22.19
+  },
+  {
+    "id": 12,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgEnginePower",
@@ -48,7 +96,7 @@
     "result": 323097967.62
   },
   {
-    "id": 7,
+    "id": 13,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgTemp",
@@ -56,7 +104,7 @@
     "result": 25.30
   },
   {
-    "id": 8,
+    "id": 14,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgPressure",
@@ -64,7 +112,7 @@
     "result": 25133.12
   },
   {
-    "id": 9,
+    "id": 15,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgHumidity",
@@ -72,7 +120,7 @@
     "result": 7.53
   },
   {
-    "id": 10,
+    "id": 16,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgHeartRate",
@@ -80,7 +128,7 @@
     "result": 88.80
   },
   {
-    "id": 11,
+    "id": 17,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgOxygen",
@@ -88,7 +136,7 @@
     "result": 68.45
   },
   {
-    "id": 12,
+    "id": 18,
     "milestone": 2,
     "mode": "feature",
     "feature": "flightDistance",
@@ -96,7 +144,7 @@
     "result": 236094.42
   },
   {
-    "id": 13,
+    "id": 19,
     "milestone": 3,
     "mode": "feature",
     "feature": "avgMachSpeed",
@@ -104,7 +152,7 @@
     "result": 0.80
   },
   {
-    "id": 14,
+    "id": 20,
     "milestone": 3,
     "mode": "feature",
     "feature": "windSpeed",
@@ -112,7 +160,7 @@
     "result": 41.53
   },
   {
-    "id": 15,
+    "id": 21,
     "milestone": 3,
     "mode": "feature",
     "feature": "maxAccelG",
@@ -120,7 +168,7 @@
     "result": 21.05
   },
   {
-    "id": 16,
+    "id": 22,
     "milestone": 3,
     "mode": "feature",
     "feature": "takeOff",
@@ -128,7 +176,7 @@
     "result": "start=04:00:31 / end=04:03:57"
   },
   {
-    "id": 17,
+    "id": 23,
     "milestone": 3,
     "mode": "feature",
     "feature": "oxygenPhase",
@@ -136,7 +184,7 @@
     "result": "oxygenPhase: cruise"
   },
   {
-    "id": 18,
+    "id": 24,
     "milestone": 3,
     "mode": "feature",
     "feature": "mostPowerPhase",
@@ -144,7 +192,7 @@
     "result": "cruise"
   },
   {
-    "id": 19,
+    "id": 25,
     "milestone": 3,
     "mode": "feature",
     "feature": "stressedPilot",
@@ -152,7 +200,7 @@
     "result": "y"
   },
   {
-    "id": 20,
+    "id": 26,
     "milestone": 4,
     "mode": "feature",
     "feature": "highestSpeed",
@@ -160,7 +208,7 @@
     "result": "201_MiG-23MLD"
   },
   {
-    "id": 21,
+    "id": 27,
     "milestone": 4,
     "mode": "feature",
     "feature": "highestAltitude",
@@ -168,7 +216,7 @@
     "result": "201_MiG-23MLD"
   },
   {
-    "id": 22,
+    "id": 28,
     "milestone": 4,
     "mode": "feature",
     "feature": "longestDuration",
