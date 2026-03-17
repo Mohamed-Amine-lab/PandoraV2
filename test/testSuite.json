@@ -41,14 +41,6 @@
   },
   {
     "id": 6,
-    "milestone": 1,
-    "mode": "feature",
-    "feature": "number",
-    "file": "test/resources/common/0_201_MiG-23MLD.frd",
-    "result": 1407
-  },
-  {
-    "id": 7,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgEnginePower",
@@ -56,7 +48,7 @@
     "result": 323097967.62
   },
   {
-    "id": 8,
+    "id": 7,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgTemp",
@@ -64,7 +56,7 @@
     "result": 25.30
   },
   {
-    "id": 9,
+    "id": 8,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgPressure",
@@ -72,7 +64,7 @@
     "result": 25133.12
   },
   {
-    "id": 10,
+    "id": 9,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgHumidity",
@@ -80,7 +72,7 @@
     "result": 7.53
   },
   {
-    "id": 11,
+    "id": 10,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgHeartRate",
@@ -88,7 +80,7 @@
     "result": 88.80
   },
   {
-    "id": 12,
+    "id": 11,
     "milestone": 2,
     "mode": "feature",
     "feature": "avgOxygen",
@@ -96,7 +88,7 @@
     "result": 68.45
   },
   {
-    "id": 13,
+    "id": 12,
     "milestone": 2,
     "mode": "feature",
     "feature": "flightDistance",
@@ -104,7 +96,7 @@
     "result": 236094.42
   },
   {
-    "id": 14,
+    "id": 13,
     "milestone": 3,
     "mode": "feature",
     "feature": "avgMachSpeed",
@@ -112,7 +104,7 @@
     "result": 0.80
   },
   {
-    "id": 15,
+    "id": 14,
     "milestone": 3,
     "mode": "feature",
     "feature": "windSpeed",
@@ -120,7 +112,7 @@
     "result": 41.53
   },
   {
-    "id": 16,
+    "id": 15,
     "milestone": 3,
     "mode": "feature",
     "feature": "maxAccelG",
@@ -128,7 +120,7 @@
     "result": 21.05
   },
   {
-    "id": 17,
+    "id": 16,
     "milestone": 3,
     "mode": "feature",
     "feature": "takeOff",
@@ -136,7 +128,7 @@
     "result": "début=04:00:31 / fin=04:03:57"
   },
   {
-    "id": 18,
+    "id": 17,
     "milestone": 3,
     "mode": "feature",
     "feature": "oxygenPhase",
@@ -144,7 +136,7 @@
     "result": "oxygenPhase: cruise"
   },
   {
-    "id": 19,
+    "id": 18,
     "milestone": 3,
     "mode": "feature",
     "feature": "mostPowerPhase",
@@ -152,7 +144,7 @@
     "result": "cruise"
   },
   {
-    "id": 20,
+    "id": 19,
     "milestone": 3,
     "mode": "feature",
     "feature": "stressedPilot",
@@ -160,10 +152,18 @@
     "result": "y"
   },
   {
-    "id": 21,
+    "id": 20,
     "milestone": 4,
     "mode": "feature",
     "feature": "highestSpeed",
+    "file": "test/resources/common",
+    "result": "201_MiG-23MLD"
+  },
+  {
+    "id": 21,
+    "milestone": 4,
+    "mode": "feature",
+    "feature": "highestAltitude",
     "file": "test/resources/common",
     "result": "201_MiG-23MLD"
   },
@@ -173,14 +173,6 @@
     "mode": "feature",
     "feature": "longestDuration",
     "file": "test/resources/common",
-    "result": "201_MiG-23MLD"
-  },
-  {
-    "id": 23,
-    "milestone": 4,
-    "mode": "feature",
-    "feature": "highestAltitude",
-    "file": "test/resources/common",
-    "result": "201_MiG-23MLD"
+    "result": "301_Su-25T"
   }
 ]
