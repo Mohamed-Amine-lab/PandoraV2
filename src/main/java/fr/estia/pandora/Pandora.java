@@ -1,6 +1,7 @@
 package fr.estia.pandora;
 
 import gnu.getopt.Getopt;
+import java.util.Locale;
 import gnu.getopt.LongOpt;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,6 +48,9 @@ public class Pandora {
      * @param arguments arguments de la ligne de commande
      */
     public static void main(String[] arguments) {
+        // Forcer le point comme séparateur décimal sur tous les systèmes
+        Locale.setDefault(Locale.US);
+
         // Définition des options longues
         LongOpt[] longOpts = new LongOpt[] {
             new LongOpt("version", LongOpt.NO_ARGUMENT, null, 'v'),
@@ -451,7 +455,7 @@ public class Pandora {
     private static String computeBatchFeature(String feature, List<Flightdata> flights,
                                                String unitSystem) {
         switch (feature) {
-            case "cumulDuration":   return BatchCalculator.cumulDuration(flights);
+            case "cumulDuration":    return BatchCalculator.cumulDuration(flights);
             case "cumulDistance":   return BatchCalculator.cumulDistance(flights);
             case "airportTakeOff":  return BatchCalculator.airportTakeOff(flights);
             case "airportLanding":  return BatchCalculator.airportLanding(flights);

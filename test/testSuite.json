@@ -1,1 +1,186 @@
-[]
+[
+  {
+    "id": 1,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "version",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": "pandora@2.0.0"
+  },
+  {
+    "id": 2,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "avgAlt",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 4874.94
+  },
+  {
+    "id": 3,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "maxAlt",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 11095.51
+  },
+  {
+    "id": 4,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "avgAirSpeed",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 273.38
+  },
+  {
+    "id": 5,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "flightDuration",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": "00:12:37"
+  },
+  {
+    "id": 6,
+    "milestone": 1,
+    "mode": "feature",
+    "feature": "number",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 1407
+  },
+  {
+    "id": 7,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "avgEnginePower",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 323097967.62
+  },
+  {
+    "id": 8,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "avgTemp",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 25.30
+  },
+  {
+    "id": 9,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "avgPressure",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 25133.12
+  },
+  {
+    "id": 10,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "avgHumidity",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 7.53
+  },
+  {
+    "id": 11,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "avgHeartRate",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 88.80
+  },
+  {
+    "id": 12,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "avgOxygen",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 68.45
+  },
+  {
+    "id": 13,
+    "milestone": 2,
+    "mode": "feature",
+    "feature": "flightDistance",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 236094.42
+  },
+  {
+    "id": 14,
+    "milestone": 3,
+    "mode": "feature",
+    "feature": "avgMachSpeed",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 0.80
+  },
+  {
+    "id": 15,
+    "milestone": 3,
+    "mode": "feature",
+    "feature": "windSpeed",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 41.53
+  },
+  {
+    "id": 16,
+    "milestone": 3,
+    "mode": "feature",
+    "feature": "maxAccelG",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": 21.05
+  },
+  {
+    "id": 17,
+    "milestone": 3,
+    "mode": "feature",
+    "feature": "takeOff",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": "début=04:00:31 / fin=04:03:57"
+  },
+  {
+    "id": 18,
+    "milestone": 3,
+    "mode": "feature",
+    "feature": "oxygenPhase",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": "oxygenPhase: cruise"
+  },
+  {
+    "id": 19,
+    "milestone": 3,
+    "mode": "feature",
+    "feature": "mostPowerPhase",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": "cruise"
+  },
+  {
+    "id": 20,
+    "milestone": 3,
+    "mode": "feature",
+    "feature": "stressedPilot",
+    "file": "test/resources/common/0_201_MiG-23MLD.frd",
+    "result": "y"
+  },
+  {
+    "id": 21,
+    "milestone": 4,
+    "mode": "feature",
+    "feature": "highestSpeed",
+    "file": "test/resources/common",
+    "result": "201_MiG-23MLD"
+  },
+  {
+    "id": 22,
+    "milestone": 4,
+    "mode": "feature",
+    "feature": "longestDuration",
+    "file": "test/resources/common",
+    "result": "201_MiG-23MLD"
+  },
+  {
+    "id": 23,
+    "milestone": 4,
+    "mode": "feature",
+    "feature": "highestAltitude",
+    "file": "test/resources/common",
+    "result": "201_MiG-23MLD"
+  }
+]
